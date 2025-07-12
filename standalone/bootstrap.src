@@ -294,11 +294,17 @@ systemBootstrap = function()
 		if (locals.networkDeviceList).len > 0 then locals.hasNetworkDevice = true
 		
 	//Check User is Established
-		if not user_mail_address.len > 0 then locals.hasEmail = false
-		if user_mail_address.len > 0 then locals.hasEmail = true
-	
-		if not user_bank_number.len > 0 then locals.hasBank =  false
-		if user_bank_number.len > 0 then locals.hasBank = true
+		if not user_mail_address then
+			locals.hasEmail = false
+			else if user_mail_address then
+				locals.hasEmail = true
+		end if
+
+		if not user_bank_number then
+			locals.hasBank = false
+			else if user_bank_number then
+				locals.hasBank = true
+		end if
 			
 	//Check Hardware Connection Type
 		locals.activeNetCard = locals.myComputer.active_net_card
