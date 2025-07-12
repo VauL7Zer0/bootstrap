@@ -1,0 +1,177 @@
+
+import_code("/lib/prefabText.so")
+
+import_code("/lib/color.so")
+
+import_code("/lib/networkDeviceList.so")
+
+import_code("/lib/fileExists.so")
+
+report = new report_string_construct__	//load common strings
+
+systemBootstrap = function()
+	//Load Objects
+		locals.myComputer = get_shell.host_computer	//load local computer
+		locals.hasBank = false
+		locals.hasEmail = false
+		locals.activeNetCard = "NONE"
+		locals.hasNetworkDevice = false
+		locals.hasLibDir = false
+		locals.hasMetaxploit = false
+		
+	//Specify Wifi Information Database File Location
+		locals.wifiInfo_fileLocation = home_dir + "Database" + "/wifiConnectionInfo.db"
+		
+	//Check Interfaces
+		locals.networkDeviceList = network_device_list
+		if (locals.networkDeviceList).len == 0 then locals.hasNetworkDevice = false
+		if (locals.networkDeviceList).len > 0 then locals.hasNetworkDevice = true
+		
+	//Check User is Established
+		if not user_mail_address.len > 0 then locals.hasEmail = false
+		if user_mail_address.len > 0 then locals.hasEmail = true
+	
+		if not user_bank_number.len > 0 then locals.hasBank =  false
+		if user_bank_number.len > 0 then locals.hasBank = true
+			
+	//Check Hardware Connection Type
+		locals.activeNetCard = locals.myComputer.active_net_card
+		
+	//Check for active internet access
+		locals.isConnected = locals.myComputer.is_network_active
+		
+	//Check for lib directory
+		locals.hasLibDir = typeof(myComputer.File("/lib"))
+
+	//Check for metaxploit
+			if (locals.myComputer.File("/lib")).is_folder == true then
+				if file_exists("/lib/metaxploit.so") then
+					locals.hasMetaxploit = true			
+				else
+					locals.hasMetaxploit = false					
+				end if
+			end if
+
+	//Check for cryptoLib
+			if (locals.myComputer.File("/lib")).is_folder == true then
+				if file_exists("/lib/crypto.so") then
+					locals.hasCryptoLib = true			
+				else
+					locals.hasCryptoLib = false					
+				end if
+			end if			
+
+	//Check for Mail.txt
+			if (locals.myComputer.File(home_dir + "/Config")).is_folder == true then
+				if file_exists(home_dir + "/Config/Mail.txt") then
+					locals.hasMailtxt = true			
+				else
+					locals.hasMailtxt = false					
+				end if
+			end if	
+			
+	//Check for Bank.txt
+			if (locals.myComputer.File(home_dir + "/Config")).is_folder == true then
+				if file_exists(home_dir + "/Config/Bank.txt") then
+					locals.hasBanktxt = true			
+				else
+					locals.hasBanktxt = false					
+				end if
+			end if				
+
+	//Check for /home/guest folder
+			if (locals.myComputer.File("/home/guest")).is_folder == true then
+					locals.hasGuestFolder = true			
+				else
+					locals.hasGuestFolder = false					
+			end if				
+
+		return {"has_network_device": locals.hasNetworkDevice, "has_email_account": locals.hasEmail, "has_bank_account": locals.hasBank, "active_net_card": locals.activeNetCard, "is_online": locals.isConnected, "has_lib_dir": locals.hasLibDir, "has_metaxploit": locals.hasMetaxploit, "has_cryptoLib": locals.hasCryptoLib, "has_mailtxt": locals.hasMailtxt, "has_banktxt": locals.hasBanktxt, "has_guestfolder": locals.hasGuestFolder} 
+end function
+
+//Declare Objects
+bootstrap = new systemBootstrap
+passString = report.action.check_network_devices + "."*(50-(report.action.check_network_devices).len) + "[" + report.pass.default.color("Green") + "]"
+failString = report.action.check_network_devices + "."*(50-(report.action.check_network_devices).len) + "[" + report.fail.default.color("Red") + "]"
+if not bootstrap.active_net_card == "ETHERNET" then
+	if not bootstrap.active_net_card == "WIFI" then
+		print char(9) + failString
+	else
+		print char(9) + passString
+	end if
+	else
+		print char(9) + passString
+end if
+
+wait(0.3)
+
+passString = report.action.has_internet + "."*(50-(report.action.has_internet).len) + "[" + report.pass.default.color("Green") + "]"
+failString = report.action.has_internet + "."*(50-(report.action.has_internet).len) + "[" + report.fail.default.color("Red") + "]"
+if bootstrap.is_online == true then
+	print char(9) + passString
+else
+	print char(9) + failString
+end if
+
+wait(0.3)
+
+passString = report.action.has_lib_dir + "."*(50-(report.action.has_lib_dir).len) + "[" + report.pass.default.color("Green") + "]"
+failString = report.action.has_lib_dir + "."*(50-(report.action.has_lib_dir).len) + "[" + report.fail.default.color("Red") + "]"
+if bootstrap.has_lib_dir == "file" then print char(9) + passString
+if not bootstrap.has_lib_dir == "file" then print char(9) + failString
+
+wait(0.3)
+
+passString = report.action.has_metaxploit + "."*(50-(report.action.has_metaxploit).len) + "[" + report.pass.default.color("Green") + "]"
+failString = report.action.has_metaxploit + "."*(50-(report.action.has_metaxploit).len) + "[" + report.fail.default.color("Red") + "]"
+if bootstrap.has_metaxploit == true then print char(9) + passString
+if bootstrap.has_metaxploit == false then print char(9) + failString
+
+wait(0.3)
+
+passString = report.action.has_cryptoLib + "."*(50-(report.action.has_cryptoLib).len) + "[" + report.pass.default.color("Green") + "]"
+failString = report.action.has_cryptoLib + "."*(50-(report.action.has_cryptoLib).len) + "[" + report.fail.default.color("Red") + "]"
+if bootstrap.has_cryptoLib == true then print char(9) + passString
+if bootstrap.has_cryptoLib == false then print char(9) + failString
+
+wait(0.3)
+
+passString = report.action.check_user_email + "."*(50-(report.action.check_user_email).len) + "[" + report.pass.default.color("Green") + "]"
+failString = report.action.check_user_email + "."*(50-(report.action.check_user_email).len) + "[" + report.fail.default.color("Red") + "]"
+
+if bootstrap.has_email_account == true then print char(9) + passString
+if bootstrap.has_email_account == false then print char(9) + failString
+
+wait(0.3)
+
+passString = report.action.check_user_bank + "."*(50-(report.action.check_user_bank).len) + "[" + report.pass.default.color("Green") + "]"
+failString = report.action.check_user_bank + "."*(50-(report.action.check_user_bank).len) + "[" + report.fail.default.color("Red") + "]"
+
+if bootstrap.has_bank_account == true then print char(9) + passString
+if bootstrap.has_bank_account == false then print char(9) + failString
+
+wait(0.3)
+
+passString = report.action.has_banktxt + "."*(50-(report.action.has_banktxt).len) + "[" + report.pass.default.color("Orange") + "]"
+failString = report.action.has_banktxt + "."*(50-(report.action.has_banktxt).len) + "[" + report.fail.default.color("Green") + "]"
+
+if bootstrap.has_banktxt == true then print char(9) + passString
+if bootstrap.has_banktxt == false then print char(9) + failString
+
+wait(0.3)
+
+passString = report.action.has_mailtxt + "."*(50-(report.action.has_mailtxt).len) + "[" + report.pass.default.color("Orange") + "]"
+failString = report.action.has_mailtxt + "."*(50-(report.action.has_mailtxt).len) + "[" + report.fail.default.color("Green") + "]"
+
+if bootstrap.has_mailtxt == true then print char(9) + passString
+if bootstrap.has_mailtxt == false then print char(9) + failString
+
+wait(0.3)
+
+passString = report.action.has_guestfolder + "."*(50-(report.action.has_guestfolder).len) + "[" + report.pass.default.color("Orange") + "]"
+failString = report.action.has_guestfolder + "."*(50-(report.action.has_guestfolder).len) + "[" + report.fail.default.color("Green") + "]"
+
+if bootstrap.has_guestfolder == true then print char(9) + passString
+if bootstrap.has_guestfolder == false then print char(9) + failString
+
+wait(0.3)
